@@ -4,7 +4,12 @@ import java.util.Map;
 /**
  * Интерфейс с методами "сохранить состояние" и "восстановить состояние"
  */
-public interface StateSaveable {
+public interface StateWindows {
+    /**
+     * Возвращает идентификатор компонента для префикса
+     */
+    String getComponentId();
+
     /**
      * Сохраняет состояние компонента в виде словаря
      * @return словарь с состоянием компонента
