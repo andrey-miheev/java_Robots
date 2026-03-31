@@ -8,7 +8,7 @@ import java.util.Set;
 
 /**
  * Представление подсловаря с заданным префиксом
- * Реализует шаблон "Фильтр" на основе AbstractMap
+ * Реализует Фильтр на основе AbstractMap
  */
 public class PrefixedMap extends AbstractMap<String, String> {
     private final Map<String, String> sourceMap;
@@ -33,14 +33,27 @@ public class PrefixedMap extends AbstractMap<String, String> {
     }
 
     @Override
+    public String get(Object key) {
+        if (!(key instanceof String)) {
+            return null;
+        }
+        String stringKey = (String) key;
+        if (flagPrefix) {
+            return sourceMap.get(prefix + stringKey);
+        } else {
+            return sourceMap.get(stringKey);
+        }
+    }
+
+    @Override
     public String put(String key, String value) {
         if (flagPrefix){
             return sourceMap.put(prefix + key, value);
         } else {
-            if (key.startsWith(prefix)){
-                return sourceMap.put(key, value);
+            if (!key.startsWith(prefix)) {
+                return sourceMap.put(prefix + key, value);
             }
-            return null;
+            return sourceMap.put(key, value);
         }
     }
 
