@@ -88,7 +88,6 @@ public class ComponentStateHandler {
                 }
             } else if (component instanceof JFrame){
                 JFrame frame = (JFrame) component;
-
                 int extendedState = 0;
                 if (maximized) extendedState |= JFrame.MAXIMIZED_BOTH;
                 if (iconified) extendedState |= JFrame.ICONIFIED;
@@ -100,6 +99,12 @@ public class ComponentStateHandler {
         }
     }
 
+    /**
+     * Безопасное преобразование в int
+     * @param value
+     * @param defaultValue
+     * @return если нет ошибки value, если ошибка то defaultValue
+     */
     private int parseInt(String value, int defaultValue) {
         try {
             return Integer.parseInt(value);
@@ -108,6 +113,11 @@ public class ComponentStateHandler {
         }
     }
 
+    /**
+     * Безопасное преобразование в boolean
+     * @param value
+     * @return
+     */
     private boolean parseBoolean(String value){
         if (value == null) {
             return false;

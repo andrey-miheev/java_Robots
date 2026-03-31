@@ -7,38 +7,50 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Map;
 
 /**
  * Главное окно приложения
  */
-public class MainApplicationFrame extends JFrame
+public class MainApplicationFrame extends JFrame implements StateWindows
 {
+    private final String COMPONENT_ID = "main";
+
     private final JDesktopPane desktopPane = new JDesktopPane();
+    private final StateProcessing stateProcessing;
+    private final ComponentStateHandler stateHandler;
+
+    private final LogWindow logWindow;
+    private final GameWindow gameWindow;
 
     /**
      * Конструктор главного окна
      */
     public MainApplicationFrame() {
-        //Make the big window be indented 50 pixels from each edge
-        //of the screen.
-        int inset = 50;        
+        this.stateProcessing = new StateProcessing();
+        this.stateHandler = new ComponentStateHandler();
+        int inset = 50;
+        this.setExtendedState(Frame.MAXIMIZED_BOTH);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds(inset, inset,
             screenSize.width  - inset*2,
             screenSize.height - inset*2);
 
         setContentPane(desktopPane);
-        
-        
-        LogWindow logWindow = createLogWindow();
-        addWindow(logWindow);
 
-        GameWindow gameWindow = new GameWindow();
-        gameWindow.setSize(400,  400);
-        addWindow(gameWindow);
+        
+        this.logWindow = createLogWindow();
+        addWindow(this.logWindow);
+
+        this.gameWindow = new GameWindow(stateHandler);
+        this.gameWindow.setSize(400,  400);
+        addWindow(this.gameWindow);
 
         setJMenuBar(generateMenuBar());
         setupWindowClosingHandler();
+
+        registerComponents();
+        loadApplicationState();
     }
 
     /**
@@ -67,6 +79,7 @@ public class MainApplicationFrame extends JFrame
         );
 
         if (result == JOptionPane.YES_OPTION) {
+            saveApplicationState();
             System.exit(0);
         }
     }
@@ -77,13 +90,36 @@ public class MainApplicationFrame extends JFrame
      */
     protected LogWindow createLogWindow()
     {
-        LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
+        LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource(), stateHandler);
         logWindow.setLocation(10,10);
         logWindow.setSize(300, 800);
         setMinimumSize(logWindow.getSize());
         logWindow.pack();
         Logger.debug("Протокол работает");
         return logWindow;
+    }
+
+    /**
+     * Регестрирует компоненты для записи состояния
+     */
+    private void registerComponents(){
+        stateProcessing.registerComponent(this);
+        stateProcessing.registerComponent(logWindow);
+        stateProcessing.registerComponent(gameWindow);
+    }
+
+    /**
+     * Загружает сохраненное состояние
+     */
+    private void loadApplicationState(){
+        stateProcessing.restoreAllStates();
+    }
+
+    /**
+     * Сохраняет состояние
+     */
+    private void saveApplicationState() {
+        stateProcessing.saveAllStates();
     }
 
     /**
@@ -215,5 +251,20 @@ public class MainApplicationFrame extends JFrame
         {
             // just ignore
         }
+    }
+
+    @Override
+    public Map<String, String> saveState() {
+        return stateHandler.saveState(this);
+    }
+
+    @Override
+    public void restoreState(Map<String, String> state) {
+        stateHandler.restoreState(this, state);
+    }
+
+    @Override
+    public String getComponentId() {
+        return COMPONENT_ID;
     }
 }

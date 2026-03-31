@@ -2,18 +2,40 @@ package gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
-public class GameWindow extends JInternalFrame
+public class GameWindow extends JInternalFrame implements StateWindows
 {
-    private final GameVisualizer gameVisualizer;
+    private final String COMPONENT_ID = "game";
 
-    public GameWindow() 
+    private final GameVisualizer gameVisualizer;
+    private final ComponentStateHandler stateHandler;
+
+    public GameWindow(ComponentStateHandler stateHandler)
     {
         super("Игровое поле", true, true, true, true);
         gameVisualizer = new GameVisualizer();
+        this.stateHandler = stateHandler;
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(gameVisualizer, BorderLayout.CENTER);
         getContentPane().add(panel);
+
+        setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
         pack();
+    }
+
+    @Override
+    public Map<String, String> saveState() {
+        return stateHandler.saveState(this);
+    }
+
+    @Override
+    public void restoreState(Map<String, String> state) {
+        stateHandler.restoreState(this, state);
+    }
+
+    @Override
+    public String getComponentId() {
+        return COMPONENT_ID;
     }
 }
