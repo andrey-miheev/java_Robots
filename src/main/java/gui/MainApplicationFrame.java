@@ -1,5 +1,6 @@
 package gui;
 
+import gui.controller.RobotController;
 import log.Logger;
 
 import javax.swing.*;
@@ -22,6 +23,7 @@ public class MainApplicationFrame extends JFrame implements StateWindows
 
     private final LogWindow logWindow;
     private final GameWindow gameWindow;
+    private final RobotStateWindow robotStateWindow;
 
     /**
      * Конструктор главного окна
@@ -29,6 +31,7 @@ public class MainApplicationFrame extends JFrame implements StateWindows
     public MainApplicationFrame() {
         this.stateProcessing = new StateProcessing();
         this.stateHandler = new ComponentStateHandler();
+        RobotModel robotModel = new RobotModel();
         int inset = 50;
         this.setExtendedState(Frame.MAXIMIZED_BOTH);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -42,9 +45,14 @@ public class MainApplicationFrame extends JFrame implements StateWindows
         this.logWindow = createLogWindow();
         addWindow(this.logWindow);
 
-        this.gameWindow = new GameWindow(stateHandler);
+        this.gameWindow = new GameWindow(robotModel, stateHandler);
         this.gameWindow.setSize(400,  400);
         addWindow(this.gameWindow);
+
+        new RobotController(robotModel, gameWindow.getVisualizer());
+
+        this.robotStateWindow = new RobotStateWindow(robotModel, stateHandler);
+        addWindow(this.robotStateWindow);
 
         setJMenuBar(generateMenuBar());
         setupWindowClosingHandler();
@@ -106,6 +114,7 @@ public class MainApplicationFrame extends JFrame implements StateWindows
         stateProcessing.registerComponent(this);
         stateProcessing.registerComponent(logWindow);
         stateProcessing.registerComponent(gameWindow);
+        stateProcessing.registerComponent(robotStateWindow);
     }
 
     /**

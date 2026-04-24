@@ -11,10 +11,10 @@ public class GameWindow extends JInternalFrame implements StateWindows
     private final GameVisualizer gameVisualizer;
     private final ComponentStateHandler stateHandler;
 
-    public GameWindow(ComponentStateHandler stateHandler)
+    public GameWindow(RobotModel model,ComponentStateHandler stateHandler)
     {
         super("Игровое поле", true, true, true, true);
-        gameVisualizer = new GameVisualizer();
+        gameVisualizer = new GameVisualizer(model);
         this.stateHandler = stateHandler;
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(gameVisualizer, BorderLayout.CENTER);
@@ -22,6 +22,10 @@ public class GameWindow extends JInternalFrame implements StateWindows
 
         setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
         pack();
+    }
+
+    public GameVisualizer getVisualizer() {
+        return gameVisualizer;
     }
 
     @Override

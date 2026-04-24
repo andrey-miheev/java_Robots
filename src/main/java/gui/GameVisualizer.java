@@ -21,32 +21,18 @@ public class GameVisualizer extends JPanel implements PropertyChangeListener
         setDoubleBuffered(true);
     }
 
-    /**
-     * Метод вызывается автоматически, когда модель оповещает об изменениях
-     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         repaint();
     }
 
-    /**
-     * Отрисовывает игровые объекты - робот, цель
-     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        drawRobot(g2d,
-                round(model.getX()),
-                round(model.getY()),
-                model.getDirection()
+        drawRobot(g2d, (int) model.getX(), (int) model.getY(), model.getDirection()
         );
         drawTarget(g2d, model.getTargetX(), model.getTargetY());
-    }
-    
-    private static int round(double value)
-    {
-        return (int)(value + 0.5);
     }
 
     /**
@@ -70,7 +56,10 @@ public class GameVisualizer extends JPanel implements PropertyChangeListener
      */
     private void drawRobot(Graphics2D g, int x, int y, double direction)
     {
-        AffineTransform t = AffineTransform.getRotateInstance(direction, x, y);
+        AffineTransform old = g.getTransform();
+        AffineTransform t = (AffineTransform) old.clone();
+        t.rotate(direction, x, y);
+
         g.setTransform(t);
 
         g.setColor(Color.MAGENTA);
@@ -81,6 +70,7 @@ public class GameVisualizer extends JPanel implements PropertyChangeListener
         fillOval(g, x  + 10, y, 5, 5);
         g.setColor(Color.BLACK);
         drawOval(g, x  + 10, y, 5, 5);
+        g.setTransform(old);
     }
 
     /**
@@ -88,7 +78,6 @@ public class GameVisualizer extends JPanel implements PropertyChangeListener
      */
     private void drawTarget(Graphics2D g, int x, int y)
     {
-        g.setTransform(new AffineTransform());
         g.setColor(Color.GREEN);
         fillOval(g, x, y, 5, 5);
         g.setColor(Color.BLACK);

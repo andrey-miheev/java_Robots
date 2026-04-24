@@ -22,11 +22,19 @@ public class RobotModel {
     private static final double MAX_VELOCITY = 0.1;
     private static final double MAX_ANGULAR_VELOCITY = 0.001;
 
+    /**
+     * Устанавливает новую точку цели
+     */
     public void setTargetPosition(Point p){
         this.targetPositionX = p.x;
         this.targetPositionY = p.y;
+
+        support.firePropertyChange("target", null, null);
     }
 
+    /**
+     * Обновляет состояние робота на один шаг моделирования
+     */
     public void update(int duration){
         double dist = Math.sqrt(Math.pow(targetPositionX - robotPositionX, 2) + Math.pow(targetPositionY - robotPositionY, 2));
         if (dist < 0.5) return;
@@ -50,16 +58,28 @@ public class RobotModel {
         support.firePropertyChange("robot_moved", null, this);
     }
 
+    /**
+     * Нормализует угол к диапозону [-pi, pi]
+     */
     private double normalizeAngle(double angle) {
         while (angle <= -Math.PI) angle += 2 * Math.PI;
         while (angle > Math.PI) angle -= 2 * Math.PI;
         return angle;
     }
 
+    /**
+     * Подписывает слушателя на уведомления об изменении состояния модели
+     */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);
     }
 
+    /**
+     * Возвращает угол до цели
+     */
+    public double getAngleToTarget(){
+        return angleTo(robotPositionX, robotPositionY, targetPositionX, targetPositionY);
+    }
     /**
      * Возвращает значение координаты робота по Х
      * @return robotPositionX
@@ -89,4 +109,13 @@ public class RobotModel {
      * @return targetPositionY
      */
     public int getTargetY() { return targetPositionY; }
+
+    /**
+     * Вычисляет направление и нормализует угол
+     */
+    private double angleTo(double fromX, double fromY, double toX, double toY) {
+        double diffX = toX - fromX;
+        double diffY = toY - fromY;
+        return normalizeAngle(Math.atan2(diffY, diffX));
+    }
 }
